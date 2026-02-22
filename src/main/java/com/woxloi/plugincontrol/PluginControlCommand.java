@@ -31,7 +31,7 @@ public class PluginControlCommand implements CommandExecutor {
                     sender.sendMessage("§e/plugincontrol enable <plugin>");
                     return true;
                 }
-                handleEnable(sender, args[1]);
+                enable(sender, args[1]);
             }
 
             case "disable" -> {
@@ -39,17 +39,17 @@ public class PluginControlCommand implements CommandExecutor {
                     sender.sendMessage("§e/plugincontrol disable <plugin>");
                     return true;
                 }
-                handleDisable(sender, args[1]);
+                disable(sender, args[1]);
             }
 
-            case "list" -> handleList(sender);
+            case "list" -> list(sender);
 
             case "info" -> {
                 if (args.length != 2) {
                     sender.sendMessage("§e/plugincontrol info <plugin>");
                     return true;
                 }
-                handleInfo(sender, args[1]);
+                info(sender, args[1]);
             }
 
             case "reload" -> {
@@ -63,7 +63,10 @@ public class PluginControlCommand implements CommandExecutor {
         return true;
     }
 
-    private void handleEnable(CommandSender sender, String name) {
+    /* ================= ENABLE ================= */
+
+    private void enable(CommandSender sender, String name) {
+
         Plugin target = Bukkit.getPluginManager().getPlugin(name);
 
         if (target == null) {
@@ -81,10 +84,7 @@ public class PluginControlCommand implements CommandExecutor {
             return;
         }
 
-        sender.sendMessage("§7有効化処理を実行中...");
-
         Bukkit.getScheduler().runTask(PluginControl.getInstance(), () -> {
-
             Bukkit.getPluginManager().enablePlugin(target);
 
             PluginControl plugin = PluginControl.getInstance();
@@ -97,7 +97,10 @@ public class PluginControlCommand implements CommandExecutor {
         });
     }
 
-    private void handleDisable(CommandSender sender, String name) {
+    /* ================= DISABLE ================= */
+
+    private void disable(CommandSender sender, String name) {
+
         Plugin target = Bukkit.getPluginManager().getPlugin(name);
 
         if (target == null) {
@@ -114,8 +117,6 @@ public class PluginControlCommand implements CommandExecutor {
             sender.sendMessage("§cすでに無効です");
             return;
         }
-
-        sender.sendMessage("§7無効化処理を実行中...");
 
         Bukkit.getScheduler().runTask(PluginControl.getInstance(), () -> {
 
@@ -134,18 +135,22 @@ public class PluginControlCommand implements CommandExecutor {
         });
     }
 
-    private void handleList(CommandSender sender) {
-        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+    /* ================= LIST ================= */
+
+    private void list(CommandSender sender) {
 
         sender.sendMessage("§6=== Plugin List ===");
 
-        for (Plugin plugin : plugins) {
+        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
             String status = plugin.isEnabled() ? "§a有効" : "§c無効";
             sender.sendMessage("§7- §f" + plugin.getName() + " §8[" + status + "§8]");
         }
     }
 
-    private void handleInfo(CommandSender sender, String name) {
+    /* ================= INFO ================= */
+
+    private void info(CommandSender sender, String name) {
+
         Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
 
         if (plugin == null) {
@@ -172,7 +177,7 @@ public class PluginControlCommand implements CommandExecutor {
 
     /* ================= TAB ================= */
 
-    public static class PluginControlTab implements TabCompleter {
+    public static class PluginControlCommandTab implements TabCompleter {
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
@@ -181,10 +186,7 @@ public class PluginControlCommand implements CommandExecutor {
                 return Arrays.asList("enable", "disable", "list", "info", "reload");
             }
 
-            if (args.length == 2 && (args[0].equalsIgnoreCase("enable")
-                    || args[0].equalsIgnoreCase("disable")
-                    || args[0].equalsIgnoreCase("info"))) {
-
+            if (args.length == 2) {
                 return Arrays.stream(Bukkit.getPluginManager().getPlugins())
                         .map(Plugin::getName)
                         .collect(Collectors.toList());

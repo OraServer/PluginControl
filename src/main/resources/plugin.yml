@@ -1,15 +1,23 @@
 name: PluginControl
 main: com.woxloi.plugincontrol.PluginControl
-version: 1.0
+version: 1.0.0
 api-version: 1.20
+load: STARTUP
+
 author: woxloi
 website: https://github.com/OraServer/PluginControl
+description: Control, enable, disable and manage other plugins safely on Paper servers.
 
 commands:
   plugincontrol:
+    description: Main command for PluginControl
+    usage: /plugincontrol
     permission: plugincontrol.admin
+    permission-message: §cこのコマンドを実行する権限がありません。
     aliases:
       - pcontrol
+
 permissions:
   plugincontrol.admin:
+    description: Allows enabling and disabling plugins
     default: op
