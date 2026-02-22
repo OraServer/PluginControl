@@ -15,33 +15,29 @@ public final class PluginControl extends JavaPlugin {
         return instance;
     }
 
-    /* ==============================
-       起動前に無効化（重要）
-       ============================== */
-    @Override
-    public void onLoad() {
-
-        saveDefaultConfig();
-
-        List<String> disabledList = getConfig().getStringList("auto-disabled");
-
-        for (String name : disabledList) {
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
-
-            if (plugin != null) {
-                Bukkit.getPluginManager().disablePlugin(plugin);
-                getLogger().info(name + " を起動時に無効化しました");
-            }
-        }
-    }
-
-    /* ==============================
-       有効化処理
-       ============================== */
     @Override
     public void onEnable() {
 
         instance = this;
+
+        saveDefaultConfig();
+
+        // ⭐ 1tick遅延で安全に無効化
+        Bukkit.getScheduler().runTask(this, () -> {
+
+            List<String> disabledList = getConfig().getStringList("auto-disabled");
+
+            for (String name : disabledList) {
+
+                Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
+
+                if (plugin != null && plugin.isEnabled()) {
+
+                    Bukkit.getPluginManager().disablePlugin(plugin);
+                    getLogger().info(name + " を起動時に無効化しました");
+                }
+            }
+        });
 
         getServer().getPluginManager().registerEvents(
                 new DisabledCommandListener(),
